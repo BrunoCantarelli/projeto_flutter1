@@ -1,6 +1,6 @@
 # projeto_flutter1
 
-Primeiro projeto com flutter
+Projeto com objetivo de aprender flutter através do curso da Alura
 
 ## Getting Started
 
