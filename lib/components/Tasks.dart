@@ -34,16 +34,25 @@ class Task extends StatefulWidget {
   final String foto;
   final int dificuldade;
 
-  const Task(this.nome, this.foto, this.dificuldade, {Key? key})
+  Task(this.nome, this.foto, this.dificuldade, {Key? key})
       : super(key: key);
+
+  int nivel = 0; // variavel do nivel de cada task
 
   @override
   State<Task> createState() => _TaskState();
 }
 
 class _TaskState extends State<Task> {
-  int nivel = 1; // variavel do nivel de cada task
   int maestryLevel = 1;
+
+  bool assetOrNetwork() {
+    if (widget.foto.contains('htpps')) {
+      // se widget de foto conter 'htpp' retorna false
+      return false;
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,11 +97,16 @@ class _TaskState extends State<Task> {
                       height: 100,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(7),
-                        child: Image.asset(
-                          widget.foto,
-                          fit: BoxFit
-                              .cover, // ajusta a imagem de forma certa dentro do espaço proposto
-                        ),
+                        child: assetOrNetwork()
+                            ? Image.asset(
+                                widget.foto,
+                                fit: BoxFit
+                                    .cover, // ajusta a imagem de forma certa dentro do espaço proposto
+                              )
+                            : Image.network(
+                                widget.foto,
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
                     Column(
@@ -100,13 +114,14 @@ class _TaskState extends State<Task> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                            width: 200,
-                            child: Text(
-                              widget.nome,
-                              style: const TextStyle(fontSize: 24),
-                              overflow: TextOverflow
-                                  .ellipsis, // caso o texto seja maior que card, aparece '...'
-                            )),
+                          width: 200,
+                          child: Text(
+                            widget.nome,
+                            style: const TextStyle(fontSize: 24),
+                            overflow: TextOverflow
+                                .ellipsis, // caso o texto seja maior que card, aparece '...'
+                          ),
+                        ),
                         Difficulty(
                           difficultyLevel: widget.dificuldade,
                         )
@@ -118,15 +133,17 @@ class _TaskState extends State<Task> {
                       width: 52,
                       child: ElevatedButton(
                           onPressed: () {
-                            setState(() {
-                              nivel++;
-                              if (nivel / widget.dificuldade > 10) {
-                                maestryLevel++;
-                                if (maestryLevel <= 7) {
-                                  nivel = 1;
+                            setState(
+                              () {
+                                widget.nivel++;
+                                if (widget.nivel / widget.dificuldade > 10) {
+                                  maestryLevel++;
+                                  if (maestryLevel <= 7) {
+                                    widget.nivel = 1;
+                                  }
                                 }
-                              }
-                            });
+                              },
+                            );
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -151,6 +168,7 @@ class _TaskState extends State<Task> {
                     child: SizedBox(
                       width: 200,
                       child: LinearProgressIndicator(
+                        // Linha de progresso dos niveis
                         color: (maestryLevel == 2)
                             ? Colors.purple
                             : (maestryLevel == 3)
@@ -165,7 +183,7 @@ class _TaskState extends State<Task> {
                                                 ? Colors.red
                                                 : Colors.white,
                         value: (widget.dificuldade > 0)
-                            ? (nivel / widget.dificuldade) / 10
+                            ? (widget.nivel / widget.dificuldade) / 10
                             : 1,
                       ),
                     ),
@@ -173,7 +191,7 @@ class _TaskState extends State<Task> {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Text(
-                      'Nivel: $nivel',
+                      'Nivel: ${widget.nivel}',
                       style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
